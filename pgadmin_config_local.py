@@ -1,0 +1,1 @@
+SESSION_DB_PATH = '/tmp/pgadmin_sessions'
