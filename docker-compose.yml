@@ -1,45 +1,55 @@
 version: "3.8"
 
 services:
-
+  # ---------- PostgreSQL ----------
   postgres:
     image: postgres:14
+    restart: unless-stopped
     environment:
       POSTGRES_USER: mlflow
       POSTGRES_PASSWORD: mlflow
       POSTGRES_DB: mlflow_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    ports: ["5432:5432"]
+    volumes: [postgres_data:/var/lib/postgresql/data]
 
+  # ---------- MLflow ----------
   mlflow:
     build: .
+    depends_on: [postgres]
+    restart: unless-stopped
     environment:
       MLFLOW_TRACKING_URI: http://mlflow:5000
-    ports:
-      - "5000:5000"
-    depends_on:
-      - postgres
     command: >
-      mlflow server 
-      --backend-store-uri postgresql://mlflow:mlflow@postgres:5432/mlflow_db 
-      --default-artifact-root /app/mlruns 
+      mlflow server
+      --backend-store-uri postgresql://mlflow:mlflow@postgres:5432/mlflow_db
+      --default-artifact-root /app/mlruns
       --host 0.0.0.0
+    ports: ["5000:5000"]
     volumes:
       - ./mlruns:/app/mlruns
+      - ./data:/app/data
 
+  # ---------- pgAdmin ----------
   pgadmin:
     image: dpage/pgadmin4
+    restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - "8080:80"
+    ports: ["8080:80"]
+    volumes: [pgadmin_data:/var/lib/pgadmin]
+
+  # ---------- Portainer ----------
+  portainer:
+    image: portainer/portainer-ce
+    restart: unless-stopped
+    command: -H unix:///var/run/docker.sock
+    ports: ["9000:9000"]
     volumes:
-      - pgadmin_data:/var/lib/pgadmin
-      - ./pgadmin_config_local.py:/pgadmin4/config_local.py
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
 
 volumes:
   postgres_data:
   pgadmin_data:
+  portainer_data:
