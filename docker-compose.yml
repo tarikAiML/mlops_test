@@ -12,11 +12,11 @@ services:
     ports: ["5432:5432"]
     volumes: [postgres_data:/var/lib/postgresql/data]
 
-  # ---------- MLflow ----------
+  # ---------- Backend MLflow + code commun ----------
   mlflow:
     build: .
-    depends_on: [postgres]
     restart: unless-stopped
+    depends_on: [postgres]
     environment:
       MLFLOW_TRACKING_URI: http://mlflow:5000
     command: >
@@ -27,6 +27,31 @@ services:
     ports: ["5000:5000"]
     volumes:
       - ./mlruns:/app/mlruns
+      - ./data:/app/data
+
+  # ---------- FastAPI ----------
+  api:
+    build: .
+    restart: unless-stopped
+    depends_on: [mlflow]
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    command: uvicorn api_app:app --host 0.0.0.0 --port 8000 --reload
+    ports: ["8000:8000"]
+    volumes:
+      - ./data:/app/data          # accès dataset
+
+  # ---------- Streamlit ----------
+  streamlit:
+    build: .
+    restart: unless-stopped
+    depends_on: [api]
+    environment:
+      STREAMLIT_SERVER_PORT: 8501
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    command: streamlit run streamlit_app.py --server.port 8501 --server.address 0.0.0.0
+    ports: ["8501:8501"]
+    volumes:
       - ./data:/app/data
 
   # ---------- pgAdmin ----------
