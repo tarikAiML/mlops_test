@@ -6,7 +6,7 @@ st.set_page_config(page_title="Red‑Wine Trainer", layout="wide")
 st.title("🍷 Red‑Wine Trainer – Interface Streamlit")
 st.markdown(
     "Lancez des entraînements MLflow et observez‑les en temps réel dans "
-    "[MLflow UI](http://localhost:5000).")
+    "[MLflow UI](http://4.204.42.233:5000).")
 
 with st.form("train_form"):
     model = st.selectbox("Modèle", ["elasticnet", "ridge", "lasso"])
