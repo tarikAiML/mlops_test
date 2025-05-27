@@ -34,11 +34,14 @@ jobs:
     steps:
       - name: Pull & restart on VM
         uses: appleboy/ssh-action@v1
+        
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            sudo usermod -aG docker ${SSH_USER}
+            newgrp docker || true 
             cd /home/azureuser/mlops_test
             docker-compose down
             docker-compose pull
