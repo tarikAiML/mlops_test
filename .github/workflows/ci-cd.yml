@@ -26,7 +26,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/mlops-redwine:${{ steps.vars.outputs.TAG }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/mlops_test:${{ steps.vars.outputs.TAG }}
 
   deploy:
     needs: build-and-push
@@ -39,7 +39,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd /home/azureuser/mlops-redwine
+            cd /home/azureuser/mlops_test
             docker-compose down
             docker-compose pull
             docker-compose up -d
