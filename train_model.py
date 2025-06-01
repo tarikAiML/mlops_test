@@ -56,3 +56,4 @@ with mlflow.start_run():
 
     mlflow.sklearn.log_model(model, "model")
     print(f"Terminé : {args.model}  alpha={args.alpha}")
+# commentaire test
